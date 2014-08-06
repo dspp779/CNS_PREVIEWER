@@ -75,7 +75,7 @@ namespace CNS_PREVIEWER
 
         private static XmlDocument getPreviewChecksum(string cnsno, string version, int pageno, int total)
         {
-            string parameter = "generalno=" + cnsno + "&version=zh_TW&pageNum=" + pageno
+            string parameter = "generalno=" + cnsno + "&version=" + version + "&pageNum=" + pageno
                 + "&pages=" + total;
             return XmlRequestPostData("http://www.cnsonline.com.tw/preview/GetData", parameter);
         }
