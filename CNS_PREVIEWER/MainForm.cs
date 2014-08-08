@@ -14,6 +14,8 @@ namespace CNS_PREVIEWER
     {
         private string cnsno;
         private int totalPage;
+
+        // keep track of document download mission
         private int numOfDownloadedPage;
 
         public MainForm()
@@ -51,6 +53,7 @@ namespace CNS_PREVIEWER
             {
                 label_help.Text = " checking total pages...";
                 cnsno = textBox_cnsno.Text;
+
                 BackgroundWorkerManager.requestTotalPageAsync(cnsno);
             }
             catch (Exception ex)
@@ -58,16 +61,8 @@ namespace CNS_PREVIEWER
                 label_help.Text = ex.Message;
             }
         }
-
-        private void backgroundWorker_totalPage_DoWork(object sender, DoWorkEventArgs e)
-        {
-            //totalPage = CnsPreviewUtil.getTotalPage((string)e.Argument);
-            label_help.Text = totalPage + " pages";
-            button_OK.Enabled = (totalPage > 0) ? true : false;
-        }
-
-
-        private void backgroundWorker_totalPage_RunWorkerCompleted(object sender, KeyValuePair<string, int> e)
+        
+        private void totalPage_RunWorkerCompleted(object sender, KeyValuePair<string, int> e)
         {
             totalPage = e.Value;
             label_help.Text = totalPage + " pages";
@@ -79,14 +74,12 @@ namespace CNS_PREVIEWER
             numOfDownloadedPage = 0;
             CnsPreviewUtil.downloadPreview(cnsno, totalPage, backgroundWorker_download);
         }
-
         private void backgroundWorker_download_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             numOfDownloadedPage++;
             this.progressBar_download.Value = numOfDownloadedPage;
             this.Text = "Downloading " + cnsno + string.Format(" ({0}/{1}).", numOfDownloadedPage, totalPage);
         }
-
         private void backgroundWorker_download_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             this.Text = "CNS" + cnsno + " downloaded.";
@@ -95,8 +88,9 @@ namespace CNS_PREVIEWER
         private void MainForm_Load(object sender, EventArgs e)
         {
             label_help.Text = "";
+            // bind total page request-completing event handler
             BackgroundWorkerManager.workCompleteEventHandler
-                += new EventHandler<KeyValuePair<string, int>>(this.backgroundWorker_totalPage_RunWorkerCompleted);
+                += new EventHandler<KeyValuePair<string, int>>(this.totalPage_RunWorkerCompleted);
         }
     }
 }

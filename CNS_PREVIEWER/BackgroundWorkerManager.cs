@@ -77,7 +77,6 @@ namespace CNS_PREVIEWER
                 if(!totalPageManager.IsBusy)
                     totalPageManager.RunWorkerAsync(pendingRequestNo);
             }
-            //responseTotalPageAsync(, totalPage);
         }
 
     }

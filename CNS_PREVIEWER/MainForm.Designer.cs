@@ -36,7 +36,6 @@
             this.backgroundWorker_download = new System.ComponentModel.BackgroundWorker();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.progressBar_download = new System.Windows.Forms.ProgressBar();
-            this.backgroundWorker_totalPage = new System.ComponentModel.BackgroundWorker();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -83,11 +82,6 @@
             resources.ApplyResources(this.progressBar_download, "progressBar_download");
             this.progressBar_download.Name = "progressBar_download";
             // 
-            // backgroundWorker_totalPage
-            // 
-            this.backgroundWorker_totalPage.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker_totalPage_DoWork);
-            this.backgroundWorker_totalPage.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker_download_RunWorkerCompleted);
-            // 
             // MainForm
             // 
             resources.ApplyResources(this, "$this");
@@ -115,7 +109,6 @@
         private System.ComponentModel.BackgroundWorker backgroundWorker_download;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.ProgressBar progressBar_download;
-        private System.ComponentModel.BackgroundWorker backgroundWorker_totalPage;
     }
 }
 
