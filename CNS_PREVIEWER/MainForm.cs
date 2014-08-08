@@ -13,8 +13,8 @@ namespace CNS_PREVIEWER
     public partial class MainForm : Form
     {
         private string cnsno;
-        private int pageno;
-        private int downloadedPage;
+        private int totalPage;
+        private int numOfDownloadedPage;
 
         public MainForm()
         {
@@ -26,8 +26,10 @@ namespace CNS_PREVIEWER
             try
             {
                 cnsno = textBox_cnsno.Text;
+                // reset the progress bar
                 progressBar_download.Value = 0;
-                progressBar_download.Maximum = pageno;
+                progressBar_download.Maximum = totalPage;
+                // run download worker
                 backgroundWorker_download.RunWorkerAsync();
             }
             catch (FormatException ex)
@@ -43,17 +45,13 @@ namespace CNS_PREVIEWER
 
         private void textBox_cnsno_TextChanged(object sender, EventArgs e)
         {
-            if (backgroundWorker_download.IsBusy)
-                return;
             if (textBox_cnsno.TextLength == 0)
                 return;
             try
             {
                 label_help.Text = " checking total pages...";
                 cnsno = textBox_cnsno.Text;
-                if (backgroundWorker1.IsBusy)
-                    backgroundWorker1.CancelAsync();
-                backgroundWorker1.RunWorkerAsync(cnsno);
+                BackgroundWorkerManager.requestTotalPageAsync(cnsno);
             }
             catch (Exception ex)
             {
@@ -61,28 +59,32 @@ namespace CNS_PREVIEWER
             }
         }
 
-        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        private void backgroundWorker_totalPage_DoWork(object sender, DoWorkEventArgs e)
         {
-            pageno = CnsPreviewUtil.getTotalPage((string)e.Argument);
+            //totalPage = CnsPreviewUtil.getTotalPage((string)e.Argument);
+            label_help.Text = totalPage + " pages";
+            button_OK.Enabled = (totalPage > 0) ? true : false;
         }
 
-        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+
+        private void backgroundWorker_totalPage_RunWorkerCompleted(object sender, KeyValuePair<string, int> e)
         {
-            label_help.Text = pageno + " pages";
-            button_OK.Enabled = (pageno > 0) ? true : false;
+            totalPage = e.Value;
+            label_help.Text = totalPage + " pages";
+            button_OK.Enabled = (totalPage > 0) ? true : false;
         }
 
         private void backgroundWorker_download_DoWork(object sender, DoWorkEventArgs e)
         {
-            downloadedPage = 0;
-            CnsPreviewUtil.downloadPreview(cnsno, pageno, backgroundWorker_download);
+            numOfDownloadedPage = 0;
+            CnsPreviewUtil.downloadPreview(cnsno, totalPage, backgroundWorker_download);
         }
 
         private void backgroundWorker_download_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            downloadedPage++;
-            this.progressBar_download.Value = downloadedPage;
-            this.Text = "Downloading " + cnsno + string.Format(" ({0}/{1}).", downloadedPage, pageno);
+            numOfDownloadedPage++;
+            this.progressBar_download.Value = numOfDownloadedPage;
+            this.Text = "Downloading " + cnsno + string.Format(" ({0}/{1}).", numOfDownloadedPage, totalPage);
         }
 
         private void backgroundWorker_download_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -93,6 +95,8 @@ namespace CNS_PREVIEWER
         private void MainForm_Load(object sender, EventArgs e)
         {
             label_help.Text = "";
+            BackgroundWorkerManager.workCompleteEventHandler
+                += new EventHandler<KeyValuePair<string, int>>(this.backgroundWorker_totalPage_RunWorkerCompleted);
         }
     }
 }

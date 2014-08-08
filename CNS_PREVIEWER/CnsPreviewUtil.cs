@@ -22,12 +22,12 @@ namespace CNS_PREVIEWER
             using (WebClient client = new WebClient())
             {
                 string htmlDoc = client.DownloadString("http://www.cnsonline.com.tw/?node=result&generalno=" + cnsno);
-                string pattern = @"javascript:accessPreview\('" + cnsno + @"', 'zh_TW', 1, (\d+)\);";
+                string pattern = @"javascript:accessPreview\('" + cnsno + @"', '(zh_TW)', 1, (\d+)\);";
 
                 Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
                 MatchCollection matches = rgx.Matches(htmlDoc);
                 // parse total page and return
-                return (matches.Count > 0) ? int.Parse(matches[0].Groups[1].Value) : 0;
+                return (matches.Count > 0) ? int.Parse(matches[0].Groups[2].Value) : 0;
             }
         }
 
@@ -62,15 +62,15 @@ namespace CNS_PREVIEWER
                         webClient.DownloadFile(url, fileName);
                     }
                 }
-                onDocDownloadComplete();
+                onDocDownloadComplete(i);
             });
             worker = null;
         }
 
-        private static void onDocDownloadComplete()
+        private static void onDocDownloadComplete(int pageno)
         {
             if (worker != null)
-                worker.ReportProgress(0);
+                worker.ReportProgress(pageno);
         }
 
         private static XmlDocument getPreviewChecksum(string cnsno, string version, int pageno, int total)
